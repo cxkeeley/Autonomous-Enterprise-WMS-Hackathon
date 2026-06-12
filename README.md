@@ -1,8 +1,8 @@
-# Autonomous Enterprise WMS 🤖📦
+# Autonomous Enterprise WMS Hackathon 🤖📦
 
-An enterprise-grade Warehouse Management System (WMS) built entirely by autonomous AI coding agents (Claude/DeepSeek) under the architectural guidance of a human Tech Lead. 
+An enterprise-grade Warehouse Management System (WMS) built entirely by autonomous AI coding agents (Claude/DeepSeek) under the architectural guidance of a human Tech Lead during a 3-hour elite hackathon.
 
-This repository serves as a **benchmark test of local AI capabilities** and a demonstration of the modern software development paradigm.
+This repository serves as a **benchmark hackathon test of local AI capabilities** and a demonstration of the modern software development paradigm.
 
 ---
 
