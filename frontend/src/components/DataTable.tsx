@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import LoadingSpinner from "./LoadingSpinner";
 
 export interface Column<T> {
   key: string;
@@ -22,16 +23,20 @@ export default function DataTable<T>({
   onDelete,
 }: Props<T>) {
   if (isLoading) {
-    return <p className="text-gray-500 py-4">Loading...</p>;
+    return <LoadingSpinner size="md" message="Loading data..." />;
   }
 
   if (data.length === 0) {
-    return <p className="text-gray-500 py-4">No data found.</p>;
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+        <p className="text-gray-400 text-sm">No data found.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+    <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <table className="min-w-full bg-white">
         <thead>
           <tr className="bg-gray-50 border-b border-gray-200">
             {columns.map((col) => (
@@ -51,7 +56,7 @@ export default function DataTable<T>({
         </thead>
         <tbody className="divide-y divide-gray-200">
           {data.map((item) => (
-            <tr key={keyExtractor(item)} className="hover:bg-gray-50">
+            <tr key={keyExtractor(item)} className="hover:bg-gray-50 transition-colors duration-100">
               {columns.map((col) => (
                 <td key={col.key} className="px-4 py-3 text-sm text-gray-700">
                   {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}

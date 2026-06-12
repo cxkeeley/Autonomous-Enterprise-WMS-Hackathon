@@ -6,6 +6,12 @@ import type {
   FifoSuggestionItem,
   OutwardRequest,
   OutwardResponse,
+  TransferRequest,
+  TransferResponse,
+  AdjustRequest,
+  AdjustResponse,
+  BatchResponse,
+  DashboardStats,
 } from "../types/api";
 import apiClient from "./client";
 
@@ -43,5 +49,25 @@ export async function fetchFifoSuggestion(
 
 export async function outward(data: OutwardRequest): Promise<OutwardResponse> {
   const response = await apiClient.post<OutwardResponse>("/inventory/outward", data);
+  return response.data;
+}
+
+export async function transfer(data: TransferRequest): Promise<TransferResponse> {
+  const response = await apiClient.post<TransferResponse>("/inventory/transfer", data);
+  return response.data;
+}
+
+export async function adjust(data: AdjustRequest): Promise<AdjustResponse> {
+  const response = await apiClient.post<AdjustResponse>("/inventory/adjust", data);
+  return response.data;
+}
+
+export async function fetchBatches(): Promise<BatchResponse[]> {
+  const response = await apiClient.get<BatchResponse[]>("/inventory/batches");
+  return response.data;
+}
+
+export async function fetchDashboardStats(): Promise<DashboardStats> {
+  const response = await apiClient.get<DashboardStats>("/inventory/dashboard");
   return response.data;
 }

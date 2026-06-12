@@ -6,7 +6,8 @@ import { fetchEntities } from "../api/masterData";
 import AsyncSelect from "../components/AsyncSelect";
 import BatchSelector from "../components/BatchSelector";
 import FileUpload from "../components/FileUpload";
-import type { ItemResponse, EntityResponse, FifoSuggestionItem, BatchAllocation } from "../types/api";
+import type { ItemResponse, EntityResponse, FifoSuggestionItem } from "../types/api";
+import type { BatchAllocation } from "../components/BatchSelector";
 
 export default function OutboundPage() {
   const queryClient = useQueryClient();
@@ -17,7 +18,7 @@ export default function OutboundPage() {
   const [receiptUrl, setReceiptUrl] = useState<string | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<FifoSuggestionItem[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [allocations, setAllocations] = useState<BatchAllocation[]>([]);
+  const [, setAllocations] = useState<BatchAllocation[]>([]);
   const [suggestionError, setSuggestionError] = useState<string | null>(null);
   const [result, setResult] = useState<{ transactions: { batch_number: string; quantity: number }[]; message: string } | null>(null);
 

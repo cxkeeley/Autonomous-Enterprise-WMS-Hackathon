@@ -88,3 +88,48 @@ class OutwardTransaction(BaseModel):
 class OutwardResponse(BaseModel):
     transactions: list[OutwardTransaction]
     message: str = "Dispatched successfully"
+
+
+# ── Transfer (WIP Conversion) ──
+
+
+class TransferRequest(BaseModel):
+    source_item_id: str = Field(..., min_length=1)
+    destination_item_id: str = Field(..., min_length=1)
+    quantity: float = Field(..., gt=0)
+    location_id: str = Field(..., min_length=1)
+    reference: Optional[str] = None
+
+
+class TransferTransaction(BaseModel):
+    transaction_id: str
+    batch_id: str
+    batch_number: str
+    transaction_type: str
+    quantity: float
+    created_at: Optional[str] = None
+
+
+class TransferResponse(BaseModel):
+    transactions: list[TransferTransaction]
+    message: str = "Transfer completed successfully"
+
+
+# ── Adjustment ──
+
+
+class AdjustRequest(BaseModel):
+    batch_id: str = Field(..., min_length=1)
+    new_quantity: float = Field(..., ge=0)
+    reason: str = Field(..., min_length=1)
+    reference: Optional[str] = None
+
+
+class AdjustResponse(BaseModel):
+    transaction_id: str
+    batch_id: str
+    batch_number: str
+    old_quantity: float
+    new_quantity: float
+    difference: float
+    message: str = "Adjustment completed successfully"

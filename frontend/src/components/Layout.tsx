@@ -1,5 +1,27 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import clsx from "clsx";
+
+const navLinkClass = "block px-3 py-2 rounded text-sm transition-colors duration-150";
+
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      className={clsx(
+        navLinkClass,
+        isActive
+          ? "bg-indigo-600 text-white"
+          : "text-gray-300 hover:bg-gray-700 hover:text-white"
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -19,38 +41,24 @@ export default function Layout() {
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
-          <Link to="/" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Dashboard
-          </Link>
+          <NavLink to="/">Dashboard</NavLink>
 
           <div className="text-xs text-gray-500 uppercase tracking-wider pt-3 pb-1 px-3">
             Operations
           </div>
-          <Link to="/inbound" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Goods Receipt
-          </Link>
-          <Link to="/outbound" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Outbound
-          </Link>
-          <Link to="/inventory" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Inventory
-          </Link>
-          <Link to="/ledger" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Ledger
-          </Link>
+          <NavLink to="/inbound">Goods Receipt</NavLink>
+          <NavLink to="/outbound">Outbound</NavLink>
+          <NavLink to="/production">Production</NavLink>
+          <NavLink to="/adjustments">Adjustments</NavLink>
+          <NavLink to="/inventory">Inventory</NavLink>
+          <NavLink to="/ledger">Ledger</NavLink>
 
           <div className="text-xs text-gray-500 uppercase tracking-wider pt-3 pb-1 px-3">
             Master Data
           </div>
-          <Link to="/items" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Items
-          </Link>
-          <Link to="/locations" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Locations
-          </Link>
-          <Link to="/entities" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
-            Entities
-          </Link>
+          <NavLink to="/items">Items</NavLink>
+          <NavLink to="/locations">Locations</NavLink>
+          <NavLink to="/entities">Entities</NavLink>
         </nav>
 
         <div className="p-4 border-t border-gray-700">

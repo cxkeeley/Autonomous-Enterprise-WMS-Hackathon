@@ -253,6 +253,261 @@ class InventoryService:
         """Get inventory summary grouped by item."""
         return await self.batches_repo.get_inventory_summary()
 
+    async def get_dashboard_stats(self) -> dict:
+        """Get dashboard statistics: total batches, total items, expiring soon, low stock."""
+        async with self.pool.acquire() as conn:
+            total_batches = await conn.fetchval("SELECT COUNT(*) FROM batches WHERE current_quantity > 0")
+            total_items = await conn.fetchval("SELECT COUNT(DISTINCT item_id) FROM batches WHERE current_quantity > 0")
+            total_quantity = await conn.fetchval("SELECT COALESCE(SUM(current_quantity), 0) FROM batches")
+
+            expiring_soon = await conn.fetch(
+                """
+                SELECT b.id, b.batch_number, i.name AS item_name, i.sku AS item_sku,
+                       b.current_quantity, b.expiration_date, l.name AS location_name
+                FROM batches b
+                JOIN items i ON i.id = b.item_id
+                JOIN locations l ON l.id = b.location_id
+                WHERE b.current_quantity > 0
+                  AND b.expiration_date IS NOT NULL
+                  AND b.expiration_date <= NOW() + INTERVAL '30 days'
+                  AND b.expiration_date >= NOW()
+                ORDER BY b.expiration_date ASC
+                """
+            )
+
+            low_stock = await conn.fetch(
+                """
+                SELECT i.id AS item_id, i.sku, i.name, i.type,
+                       COALESCE(SUM(b.current_quantity), 0) AS total_quantity
+                FROM items i
+                LEFT JOIN batches b ON b.item_id = i.id AND b.current_quantity > 0
+                GROUP BY i.id, i.sku, i.name, i.type
+                HAVING COALESCE(SUM(b.current_quantity), 0) < 10
+                ORDER BY total_quantity ASC
+                """
+            )
+
+        from app.repositories.batches_repository import _row_to_dict
+        return {
+            "total_batches": total_batches,
+            "total_items": total_items,
+            "total_quantity": float(total_quantity),
+            "expiring_soon": [_row_to_dict(r) for r in expiring_soon],
+            "low_stock": [_row_to_dict(r) for r in low_stock],
+        }
+
     async def get_transactions(self, limit: int = 100, offset: int = 0) -> list:
         """Get the transaction ledger."""
         return await self.transactions_repo.list_all(limit, offset)
+
+    async def transfer(
+        self,
+        source_item_id: str,
+        destination_item_id: str,
+        quantity: float,
+        location_id: str,
+        user_id: str,
+        reference: str = None,
+    ) -> dict:
+        """
+        Convert WIP to finished goods (production transfer).
+
+        This is an ATOMIC multi-table transaction:
+        1. Validate source item is WIP, destination is FINISHED_GOOD
+        2. Deduct from source WIP batches (FIFO) → TRANSFER_OUT
+        3. Add to or create destination FINISHED_GOOD batch → TRANSFER_IN
+        All steps succeed or roll back together.
+        """
+        # Validate items
+        source = await self.items_repo.find_by_id(source_item_id)
+        if not source:
+            raise HTTPException(status_code=404, detail="Source item not found")
+        if source["type"] != "WIP":
+            raise HTTPException(status_code=400, detail="Source item must be of type WIP")
+
+        destination = await self.items_repo.find_by_id(destination_item_id)
+        if not destination:
+            raise HTTPException(status_code=404, detail="Destination item not found")
+        if destination["type"] != "FINISHED_GOOD":
+            raise HTTPException(status_code=400, detail="Destination item must be of type FINISHED_GOOD")
+
+        location = await self.locations_repo.find_by_id(location_id)
+        if not location:
+            raise HTTPException(status_code=404, detail="Location not found")
+
+        if quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantity must be positive")
+
+        # Atomic transaction
+        async with self.pool.acquire() as conn:
+            async with conn.transaction():
+                # Get source WIP batches with row-level lock
+                source_rows = await conn.fetch(
+                    """
+                    SELECT id, batch_number, current_quantity
+                    FROM batches
+                    WHERE item_id = $1::uuid AND current_quantity > 0
+                    ORDER BY expiration_date ASC NULLS LAST, receipt_date ASC
+                    FOR UPDATE
+                    """,
+                    source_item_id,
+                )
+
+                if not source_rows:
+                    raise HTTPException(status_code=400, detail="No WIP stock available for transfer")
+
+                remaining = quantity
+                transactions = []
+
+                # Deduct from source batches
+                for row in source_rows:
+                    if remaining <= 0:
+                        break
+
+                    batch_id = str(row["id"])
+                    available = float(row["current_quantity"])
+                    deduct_qty = min(available, remaining)
+                    new_qty = available - deduct_qty
+
+                    await conn.execute(
+                        "UPDATE batches SET current_quantity = $1 WHERE id = $2::uuid",
+                        new_qty, batch_id,
+                    )
+
+                    txn_row = await conn.fetchrow(
+                        """
+                        INSERT INTO inventory_transactions (batch_id, user_id, transaction_type, quantity, reference_id)
+                        VALUES ($1::uuid, $2::uuid, 'TRANSFER_OUT'::transaction_type_enum, $3, $4)
+                        RETURNING id, batch_id, quantity, created_at
+                        """,
+                        batch_id, user_id, deduct_qty, reference,
+                    )
+
+                    transactions.append({
+                        "transaction_id": str(txn_row["id"]),
+                        "batch_id": batch_id,
+                        "batch_number": row["batch_number"],
+                        "transaction_type": "TRANSFER_OUT",
+                        "quantity": deduct_qty,
+                        "created_at": txn_row["created_at"].isoformat() if txn_row["created_at"] else None,
+                    })
+                    remaining -= deduct_qty
+
+                if remaining > 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Insufficient WIP stock. Only {quantity - remaining:.2f} of {quantity:.2f} available.",
+                    )
+
+                # Find or create destination batch for FINISHED_GOOD at the same location
+                # Try to find an existing batch for this item at this location
+                dest_batch = await conn.fetchrow(
+                    """
+                    SELECT id, batch_number, current_quantity
+                    FROM batches
+                    WHERE item_id = $1::uuid AND location_id = $2::uuid AND current_quantity > 0
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                    """,
+                    destination_item_id, location_id,
+                )
+
+                if dest_batch:
+                    # Add to existing batch
+                    new_dest_qty = float(dest_batch["current_quantity"]) + quantity
+                    await conn.execute(
+                        "UPDATE batches SET current_quantity = $1 WHERE id = $2::uuid",
+                        new_dest_qty, str(dest_batch["id"]),
+                    )
+                    dest_batch_number = dest_batch["batch_number"]
+                    dest_batch_id = str(dest_batch["id"])
+                else:
+                    # Create new batch for finished goods
+                    batch_number = f"BATCH-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+                    new_batch = await conn.fetchrow(
+                        """
+                        INSERT INTO batches (batch_number, item_id, location_id, initial_quantity, current_quantity, receipt_date)
+                        VALUES ($1, $2::uuid, $3::uuid, $4, $4, NOW())
+                        RETURNING id, batch_number
+                        """,
+                        batch_number, destination_item_id, location_id, quantity,
+                    )
+                    dest_batch_number = new_batch["batch_number"]
+                    dest_batch_id = str(new_batch["id"])
+
+                # Create TRANSFER_IN ledger entry
+                txn_in = await conn.fetchrow(
+                    """
+                    INSERT INTO inventory_transactions (batch_id, user_id, transaction_type, quantity, reference_id)
+                    VALUES ($1::uuid, $2::uuid, 'TRANSFER_IN'::transaction_type_enum, $3, $4)
+                    RETURNING id, batch_id, quantity, created_at
+                    """,
+                    dest_batch_id, user_id, quantity, reference,
+                )
+
+                transactions.append({
+                    "transaction_id": str(txn_in["id"]),
+                    "batch_id": dest_batch_id,
+                    "batch_number": dest_batch_number,
+                    "transaction_type": "TRANSFER_IN",
+                    "quantity": quantity,
+                    "created_at": txn_in["created_at"].isoformat() if txn_in["created_at"] else None,
+                })
+
+        return {
+            "transactions": transactions,
+            "message": f"Transferred {quantity:.2f} units from {source['name']} to {destination['name']}",
+        }
+
+    async def adjust(
+        self,
+        batch_id: str,
+        new_quantity: float,
+        user_id: str,
+        reason: str,
+        reference: str = None,
+    ) -> dict:
+        """
+        Adjust inventory for a specific batch (shrinkage, damage, cycle count fix).
+
+        This is an ATOMIC transaction:
+        1. Validate batch exists
+        2. Update batch quantity
+        3. Create ADJUSTMENT ledger entry
+        """
+        async with self.pool.acquire() as conn:
+            async with conn.transaction():
+                batch = await conn.fetchrow(
+                    "SELECT id, batch_number, current_quantity FROM batches WHERE id = $1::uuid FOR UPDATE",
+                    batch_id,
+                )
+
+                if not batch:
+                    raise HTTPException(status_code=404, detail="Batch not found")
+
+                old_qty = float(batch["current_quantity"])
+                difference = new_quantity - old_qty
+
+                await conn.execute(
+                    "UPDATE batches SET current_quantity = $1 WHERE id = $2::uuid",
+                    new_quantity, batch_id,
+                )
+
+                txn_row = await conn.fetchrow(
+                    """
+                    INSERT INTO inventory_transactions (batch_id, user_id, transaction_type, quantity, reference_id)
+                    VALUES ($1::uuid, $2::uuid, 'ADJUSTMENT'::transaction_type_enum, $3, $4)
+                    RETURNING id, batch_id, quantity, created_at
+                    """,
+                    batch_id, user_id, difference, reference or reason,
+                )
+
+        return {
+            "transaction_id": str(txn_row["id"]),
+            "batch_id": batch_id,
+            "batch_number": batch["batch_number"],
+            "old_quantity": old_qty,
+            "new_quantity": new_quantity,
+            "difference": difference,
+            "message": f"Adjusted batch {batch['batch_number']}: {old_qty:.2f} → {new_quantity:.2f} ({reason})",
+        }

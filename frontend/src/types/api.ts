@@ -145,3 +145,74 @@ export interface OutwardResponse {
   transactions: OutwardTransaction[];
   message: string;
 }
+
+// ── Transfer (WIP Conversion) ──
+
+export interface TransferRequest {
+  source_item_id: string;
+  destination_item_id: string;
+  quantity: number;
+  location_id: string;
+  reference?: string;
+}
+
+export interface TransferTransaction {
+  transaction_id: string;
+  batch_id: string;
+  batch_number: string;
+  transaction_type: string;
+  quantity: number;
+  created_at: string | null;
+}
+
+export interface TransferResponse {
+  transactions: TransferTransaction[];
+  message: string;
+}
+
+// ── Adjustment ──
+
+export interface AdjustRequest {
+  batch_id: string;
+  new_quantity: number;
+  reason: string;
+  reference?: string;
+}
+
+export interface AdjustResponse {
+  transaction_id: string;
+  batch_id: string;
+  batch_number: string;
+  old_quantity: number;
+  new_quantity: number;
+  difference: number;
+  message: string;
+}
+
+// ── Dashboard ──
+
+export interface ExpiringBatch {
+  id: string;
+  batch_number: string;
+  item_name: string;
+  item_sku: string;
+  current_quantity: number;
+  expiration_date: string;
+  location_name: string;
+}
+
+export interface LowStockItem {
+  item_id: string;
+  sku: string;
+  name: string;
+  type: string;
+  total_quantity: number;
+}
+
+export interface DashboardStats {
+  total_batches: number;
+  total_items: number;
+  total_quantity: number;
+  expiring_soon: ExpiringBatch[];
+  low_stock: LowStockItem[];
+}
