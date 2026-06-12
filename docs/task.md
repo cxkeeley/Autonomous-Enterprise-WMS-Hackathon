@@ -1,26 +1,27 @@
 # Warehouse App Execution Tasks
 
-- `[ ]` **Sprint 1: Infrastructure & Master Data**
-  - `[ ]` Initialize FastAPI backend with `asyncpg` and Pydantic models
-  - `[ ]` Initialize React + Vite frontend with TailwindCSS and React Query
-  - `[ ]` Implement Backend Items Schema, Repository, and REST endpoints
-  - `[ ]` Implement Frontend Reusable Components (`DataTable`, `FormInput`)
-  - `[ ]` Implement Frontend Items Management Page
+- `[ ]` **Sprint 1: Security & Master Data Foundation**
+  - `[ ]` Setup FastAPI, JWT Auth schema, and Users API
+  - `[ ]` Setup React + Vite, Login page, and Auth Context
+  - `[ ]` Build Backend: Items, Locations, and Entities CRUD APIs
+  - `[ ]` Build Frontend: Reusable components (`DataTable`, `LocationPicker`)
+  - `[ ]` Build Frontend: Master Data management UIs
 
-- `[ ]` **Sprint 2: Inbound Operations & Batch Tracking**
+- `[ ]` **Sprint 2: Inbound Operations & Warehouse Topology**
   - `[ ]` Implement Backend Batches and Transactions SQL Schemas
-  - `[ ]` Implement `/inward` API endpoint with atomic transactions
-  - `[ ]` Implement Frontend Goods Receipt UI and `DatePicker` component
-  - `[ ]` Implement Real-time Inventory Dashboard (Item/Batch grouped)
+  - `[ ]` Implement `/inward` API with `user_id`, `location_id`, `supplier_id`
+  - `[ ]` Implement Frontend Goods Receipt UI with Location/Entity Selectors
+  - `[ ]` Implement Real-time Inventory Dashboard (Item/Batch/Location grouped)
 
 - `[ ]` **Sprint 3: FIFO Dispatch & Outbound**
-  - `[ ]` Implement Backend FIFO calculation engine in Service layer
+  - `[ ]` Implement Backend FIFO calculation engine
   - `[ ]` Implement `/fifo-suggestion` and `/outward` API endpoints
-  - `[ ]` Implement Frontend Outbound Operations UI
+  - `[ ]` Implement Frontend Outbound Operations UI linked to Customers
   - `[ ]` Implement Frontend `BatchSelector` component
 
-- `[ ]` **Sprint 4: Production Routing & Polish**
+- `[ ]` **Sprint 4: Production Routing, Audits, & Polish**
   - `[ ]` Implement Backend `/transfer` API endpoint for WIP conversions
-  - `[ ]` Implement Frontend Production Transfer UI
+  - `[ ]` Implement Backend `/adjust` API for inventory shrinkage/damage
+  - `[ ]` Implement Frontend Production Transfer and Adjustment UIs
   - `[ ]` Implement Expiry Warning Dashboard
   - `[ ]` Final UI/UX Polish (animations, loading states)
