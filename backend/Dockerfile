@@ -25,11 +25,8 @@ RUN groupadd -r warehouse && useradd -r -g warehouse -d /app -s /bin/false wareh
 
 WORKDIR /app
 
-# Copy installed packages from builder
-COPY --from=builder /root/.local /root/.local
-
-# Ensure local bin is in PATH
-ENV PATH=/root/.local/bin:$PATH
+# Copy installed packages from builder to a system-wide location
+COPY --from=builder /root/.local /usr/local
 
 # Copy application code
 COPY . .

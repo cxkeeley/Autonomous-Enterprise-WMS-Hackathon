@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta
+from io import BytesIO
 
 from fastapi import HTTPException, status, UploadFile
 from minio import Minio
@@ -76,7 +77,7 @@ class UploadService:
             self.client.put_object(
                 bucket_name=self.bucket_name,
                 object_name=object_key,
-                data=content,
+                data=BytesIO(content),
                 length=len(content),
                 content_type=content_type,
             )
