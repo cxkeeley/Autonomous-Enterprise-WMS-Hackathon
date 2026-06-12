@@ -8,6 +8,9 @@ import DashboardPage from "./pages/DashboardPage";
 import ItemsPage from "./pages/ItemsPage";
 import LocationsPage from "./pages/LocationsPage";
 import EntitiesPage from "./pages/EntitiesPage";
+import InboundPage from "./pages/InboundPage";
+import InventoryPage from "./pages/InventoryPage";
+import LedgerPage from "./pages/LedgerPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +40,9 @@ export default function App() {
               <Route path="/items" element={<ItemsPage />} />
               <Route path="/locations" element={<LocationsPage />} />
               <Route path="/entities" element={<EntitiesPage />} />
+              <Route path="/inbound" element={<InboundPage />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/ledger" element={<LedgerPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

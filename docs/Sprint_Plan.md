@@ -15,10 +15,11 @@
 *   **Task 2.3:** Build Frontend: Real-time inventory dashboard grouped by Item, Batch, and Location.
 
 ## Sprint 3: FIFO Dispatch & Outbound
-**Goal:** Successfully ship goods out using automated FIFO/FEFO rules.
-*   **Task 3.1:** Build Backend: FIFO calculation engine. Implement `/fifo-suggestion` and `/outward` endpoints.
-*   **Task 3.2:** Build Frontend: Outbound Operations UI linking to Customers.
-*   **Task 3.3:** Build Frontend: Reusable `BatchSelector` component allowing manual overrides.
+**Goal:** Pick and dispatch goods using strict FEFO/FIFO rules.
+*   **Task 3.1:** Implement Backend FIFO calculation engine.
+*   **Task 3.2:** Implement `/fifo-suggestion` and `/outward` API endpoints.
+*   **Task 3.3:** Implement Frontend Outbound Operations UI linked to Customers, utilizing a complex `BatchSelector` component.
+*   **Task 3.4:** Implement MinIO Docker container and finalize backend S3 file upload connectivity.
 
 ## Sprint 4: Production Routing, Audits, & Polish
 **Goal:** Handle internal WIP conversions and cycle counts.

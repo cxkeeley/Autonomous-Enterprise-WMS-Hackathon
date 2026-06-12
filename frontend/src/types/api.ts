@@ -59,3 +59,56 @@ export interface UploadResponse {
   object_key: string;
   message: string;
 }
+
+// ── Inventory ──
+
+export interface InwardRequest {
+  item_id: string;
+  quantity: number;
+  location_id: string;
+  supplier_entity_id: string;
+  receipt_date: string;
+  expiration_date?: string;
+  reference?: string;
+  receipt_url?: string;
+}
+
+export interface InwardResponse {
+  batch: BatchResponse;
+  message: string;
+}
+
+export interface BatchResponse {
+  id: string;
+  batch_number: string;
+  item_id: string;
+  location_id: string;
+  initial_quantity: number;
+  current_quantity: number;
+  receipt_date: string;
+  expiration_date: string | null;
+  created_at: string | null;
+}
+
+export interface InventoryItem {
+  item_id: string;
+  item_sku: string;
+  item_name: string;
+  item_type: string;
+  batch_id: string;
+  batch_number: string;
+  location_id: string;
+  location_name: string;
+  current_quantity: number;
+  expiration_date: string | null;
+}
+
+export interface InventorySummary {
+  item_id: string;
+  item_sku: string;
+  item_name: string;
+  item_type: string;
+  total_quantity: number;
+  batch_count: number;
+  location_count: number;
+}

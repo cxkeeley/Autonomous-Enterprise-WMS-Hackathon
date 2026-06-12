@@ -12,6 +12,7 @@ from app.routers.upload_router import router as upload_router
 from app.routers.items_router import router as items_router
 from app.routers.locations_router import router as locations_router
 from app.routers.entities_router import router as entities_router
+from app.routers.inventory_router import router as inventory_router
 
 
 @asynccontextmanager
@@ -53,6 +54,7 @@ app.include_router(upload_router)
 app.include_router(items_router)
 app.include_router(locations_router)
 app.include_router(entities_router)
+app.include_router(inventory_router)
 
 
 @app.get("/")

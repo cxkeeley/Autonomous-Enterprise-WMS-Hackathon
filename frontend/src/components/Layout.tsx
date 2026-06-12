@@ -22,6 +22,23 @@ export default function Layout() {
           <Link to="/" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
             Dashboard
           </Link>
+
+          <div className="text-xs text-gray-500 uppercase tracking-wider pt-3 pb-1 px-3">
+            Operations
+          </div>
+          <Link to="/inbound" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
+            Goods Receipt
+          </Link>
+          <Link to="/inventory" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
+            Inventory
+          </Link>
+          <Link to="/ledger" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
+            Ledger
+          </Link>
+
+          <div className="text-xs text-gray-500 uppercase tracking-wider pt-3 pb-1 px-3">
+            Master Data
+          </div>
           <Link to="/items" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
             Items
           </Link>
