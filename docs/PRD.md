@@ -19,6 +19,7 @@ The system requires login and enforces Role-Based Access Control:
 ### 3.2 Inbound Operations (Goods Receipt)
 - Receive incoming `RAW_MATERIAL` items linked to a specific **Supplier**.
 - Generates a unique **Batch Number**, requires Expiration Date, and assigns the goods to a specific **Location** in the warehouse.
+- Support for physical document uploads (e.g., supplier receipts, invoices) stored securely in MinIO.
 
 ### 3.3 Internal Transfers (Production)
 - **Raw to WIP:** Consumes raw material batches and creates new WIP batches.

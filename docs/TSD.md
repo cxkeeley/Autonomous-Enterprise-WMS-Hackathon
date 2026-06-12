@@ -4,6 +4,7 @@
 - **Frontend:** React + Vite + TypeScript. State management via React Query for server state.
 - **Backend:** FastAPI (Python) running on Uvicorn. JWT-based Authentication.
 - **Database:** PostgreSQL.
+- **Object Storage:** MinIO (S3-Compatible API) for document/receipt uploads.
 
 ## 2. Backend Design: 2-Layer Direct Query Pattern
 The application strictly avoids ORMs (like SQLAlchemy) for performance and explicit SQL control.
@@ -79,6 +80,7 @@ CREATE TABLE inventory_transactions (
     transaction_type transaction_type_enum NOT NULL,
     quantity DECIMAL(10, 2) NOT NULL, -- positive for IN, negative for OUT
     reference_id VARCHAR(100), -- PO number, Sales Order, or Reason Code
+    receipt_url VARCHAR(500), -- MinIO object path for uploaded documents
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```

@@ -2,6 +2,7 @@
 
 - `[ ]` **Sprint 1: Security & Master Data Foundation**
   - `[ ]` Setup FastAPI, JWT Auth schema, and Users API
+  - `[ ]` Setup MinIO client and `/upload` endpoint
   - `[ ]` Setup React + Vite, Login page, and Auth Context
   - `[ ]` Build Backend: Items, Locations, and Entities CRUD APIs
   - `[ ]` Build Frontend: Reusable components (`DataTable`, `LocationPicker`)
@@ -10,7 +11,7 @@
 - `[ ]` **Sprint 2: Inbound Operations & Warehouse Topology**
   - `[ ]` Implement Backend Batches and Transactions SQL Schemas
   - `[ ]` Implement `/inward` API with `user_id`, `location_id`, `supplier_id`
-  - `[ ]` Implement Frontend Goods Receipt UI with Location/Entity Selectors
+  - `[ ]` Implement Frontend Goods Receipt UI with `FileUpload` component
   - `[ ]` Implement Real-time Inventory Dashboard (Item/Batch/Location grouped)
 
 - `[ ]` **Sprint 3: FIFO Dispatch & Outbound**

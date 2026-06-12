@@ -39,7 +39,7 @@ This document outlines the React Router page structure, user flows, and componen
   - A highly filterable `DataTable`. Users can search by SKU, Location, or Batch ID to see exactly what is in the warehouse right now.
 
 - **Goods Receipt (Inbound)** (`/inbound`):
-  - **Flow:** Operator selects a Supplier (`EntitySelector`) $\rightarrow$ Selects an Item (`ItemSelector`) $\rightarrow$ Inputs Quantity, Expiry Date (`DatePicker`), and physical Destination Location (`LocationPicker`) $\rightarrow$ Submits.
+  - **Flow:** Operator selects a Supplier (`EntitySelector`) $\rightarrow$ Selects an Item (`ItemSelector`) $\rightarrow$ Inputs Quantity, Expiry Date (`DatePicker`), physical Destination Location (`LocationPicker`), and uploads the physical receipt document (`FileUpload` widget) $\rightarrow$ Submits.
   - **Result:** System confirms the new Batch ID generated.
 
 - **Production Transfer (Internal)** (`/production`):
@@ -64,3 +64,4 @@ To keep development fast, the AI should build these generic widgets first:
 1. `DataTable`: Must support pagination and basic sorting.
 2. `BatchSelector`: A complex widget that takes an `Item ID` and lets the user multi-select existing batches up to a target quantity. Must display Location and Expiry dates.
 3. `AsyncSelect`: A dropdown that fetches data from React Query (used for picking Items, Locations, Users, and Entities).
+4. `FileUpload`: A dropzone component handling `multipart/form-data` uploads to the backend.

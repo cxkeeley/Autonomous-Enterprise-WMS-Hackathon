@@ -40,7 +40,8 @@ Receive new goods. Creates a Batch at a specific Location, linked to a Supplier.
   "supplier_entity_id": "e9b2c3d4-5678-9012-34cd-ef0123456789",
   "receipt_date": "2026-06-12T00:00:00Z",
   "expiration_date": "2027-06-12T00:00:00Z",
-  "reference": "PO-99213"
+  "reference": "PO-99213",
+  "receipt_url": "s3://warehouse-receipts/2026/06/po-99213.pdf"
 }
 ```
 
