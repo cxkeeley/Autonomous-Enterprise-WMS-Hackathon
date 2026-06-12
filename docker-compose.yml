@@ -1,0 +1,119 @@
+# =============================================================================
+# Warehouse Management System — Docker Compose
+# =============================================================================
+# Usage:
+#   Production: docker compose up -d
+#   Dev (rebuild): docker compose up -d --build
+#   Teardown: docker compose down -v
+#
+# Ports:
+#   Production — frontend :80, backend :8080
+#   Dev local  — frontend :3010, backend :8085 (change ports below as needed)
+#
+# Services:
+#   postgres   — PostgreSQL 17 database
+#   minio      — S3-compatible object storage for receipt documents
+#   backend    — FastAPI + Uvicorn application
+#   frontend   — React SPA served via Nginx
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+    container_name: wms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: warehouse_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warehouse_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # MinIO — S3-Compatible Object Storage
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: wms-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # Backend — FastAPI Application
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wms-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      # Database
+      WMS_DATABASE_URL: postgresql://postgres:secret@postgres:5432/warehouse_db
+      # JWT
+      WMS_JWT_SECRET_KEY: ${WMS_JWT_SECRET_KEY:-change-me-in-production-use-a-real-secret}
+      WMS_JWT_ALGORITHM: HS256
+      WMS_JWT_EXPIRATION_MINUTES: 480
+      # MinIO (internal docker network — use service name)
+      WMS_MINIO_ENDPOINT: minio:9000
+      WMS_MINIO_ACCESS_KEY: minioadmin
+      WMS_MINIO_SECRET_KEY: minioadmin
+      WMS_MINIO_BUCKET_NAME: warehouse-receipts
+      WMS_MINIO_SECURE: "false"
+      # Upload
+      WMS_MAX_UPLOAD_SIZE_MB: 10
+    ports:
+      - "8080:8000"
+
+  # ---------------------------------------------------------------------------
+  # Frontend — React SPA via Nginx
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: wms-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+# ---------------------------------------------------------------------------
+# Persistent Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local

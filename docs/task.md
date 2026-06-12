@@ -1,12 +1,12 @@
 # Warehouse App Execution Tasks
 
-- `[ ]` **Sprint 1: Security & Master Data Foundation**
-  - `[ ]` Setup FastAPI, JWT Auth schema, and Users API
-  - `[ ]` Setup MinIO client and `/upload` endpoint
-  - `[ ]` Setup React + Vite, Login page, and Auth Context
-  - `[ ]` Build Backend: Items, Locations, and Entities CRUD APIs
-  - `[ ]` Build Frontend: Reusable components (`DataTable`, `LocationPicker`)
-  - `[ ]` Build Frontend: Master Data management UIs
+- `[x]` **Sprint 1: Security & Master Data Foundation**
+  - `[x]` Setup FastAPI, JWT Auth schema, and Users API
+  - `[x]` Setup MinIO client and `/upload` endpoint
+  - `[x]` Setup React + Vite, Login page, and Auth Context
+  - `[x]` Build Backend: Items, Locations, and Entities CRUD APIs
+  - `[x]` Build Frontend: Reusable components (`DataTable`, `LocationPicker`)
+  - `[x]` Build Frontend: Master Data management UIs
 
 - `[ ]` **Sprint 2: Inbound Operations & Warehouse Topology**
   - `[ ]` Implement Backend Batches and Transactions SQL Schemas

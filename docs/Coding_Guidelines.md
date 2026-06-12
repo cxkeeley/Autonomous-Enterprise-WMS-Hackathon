@@ -1,10 +1,11 @@
 # Coding Guidelines & Best Practices
 
-## 1. Database Migrations
+## 1. Database Migrations & Seeders
 - **Rule:** Always use an append-only sequence for migrations.
 - **Naming Convention:** `001_<description>.sql`, `002_<description>.sql`.
 - Example: `001_master_data.sql`, `002_inventory_tables.sql`.
 - **Constraint:** Never mutate past migrations. If a schema change is needed, create a new sequential file (e.g., `003_add_expiry_column.sql`).
+- **Seeders:** For every migration, there MUST be a corresponding dev stage seeder file (e.g., `seed_001_<description>.sql`). This ensures the dev environment is always populated with mock data (like an initial Admin user, test locations, dummy entities, etc.) upon spin-up.
 
 ## 2. Backend Syntax & Best Practices (FastAPI + Python)
 - **Typing:** Use strict type hinting everywhere.
