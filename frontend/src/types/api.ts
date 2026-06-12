@@ -112,3 +112,36 @@ export interface InventorySummary {
   batch_count: number;
   location_count: number;
 }
+
+// ── FIFO / Outward ──
+
+export interface FifoSuggestionItem {
+  batch_id: string;
+  batch_number: string;
+  location_id: string;
+  location_name: string;
+  available_quantity: number;
+  suggested_quantity: number;
+  expiration_date: string | null;
+}
+
+export interface OutwardRequest {
+  item_id: string;
+  quantity: number;
+  customer_entity_id: string;
+  reference?: string;
+  receipt_url?: string;
+}
+
+export interface OutwardTransaction {
+  transaction_id: string;
+  batch_id: string;
+  batch_number: string;
+  quantity: number;
+  created_at: string | null;
+}
+
+export interface OutwardResponse {
+  transactions: OutwardTransaction[];
+  message: string;
+}

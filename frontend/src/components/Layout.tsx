@@ -29,6 +29,9 @@ export default function Layout() {
           <Link to="/inbound" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
             Goods Receipt
           </Link>
+          <Link to="/outbound" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
+            Outbound
+          </Link>
           <Link to="/inventory" className="block px-3 py-2 rounded hover:bg-gray-700 text-sm">
             Inventory
           </Link>

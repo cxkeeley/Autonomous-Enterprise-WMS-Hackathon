@@ -11,6 +11,7 @@ import EntitiesPage from "./pages/EntitiesPage";
 import InboundPage from "./pages/InboundPage";
 import InventoryPage from "./pages/InventoryPage";
 import LedgerPage from "./pages/LedgerPage";
+import OutboundPage from "./pages/OutboundPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/inbound" element={<InboundPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/ledger" element={<LedgerPage />} />
+              <Route path="/outbound" element={<OutboundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

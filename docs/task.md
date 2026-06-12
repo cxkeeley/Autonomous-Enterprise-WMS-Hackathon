@@ -14,12 +14,12 @@
   - `[ ]` Implement Frontend Goods Receipt UI with `FileUpload` component
   - `[ ]` Implement Real-time Inventory Dashboard (Item/Batch/Location grouped)
 
-- `[ ]` **Sprint 3: FIFO Dispatch & Outbound**
-  - `[ ]` Implement Backend FIFO calculation engine
-  - `[ ]` Implement `/fifo-suggestion` and `/outward` API endpoints
-  - `[ ]` Implement Frontend Outbound Operations UI linked to Customers
-  - `[ ]` Implement Frontend `BatchSelector` component
-  - `[ ]` Implement MinIO Docker container and finalize S3 file uploads
+- `[x]` **Sprint 3: FIFO Dispatch & Outbound**
+  - `[x]` Implement Backend FIFO calculation engine
+  - `[x]` Implement `/fifo-suggestion` and `/outward` API endpoints
+  - `[x]` Implement Frontend Outbound Operations UI linked to Customers
+  - `[x]` Implement Frontend `BatchSelector` component
+  - `[x]` Implement MinIO Docker container and finalize S3 file uploads
 
 - `[ ]` **Sprint 4: Production Routing, Audits, & Polish**
   - `[ ]` Implement Backend `/transfer` API endpoint for WIP conversions

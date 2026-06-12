@@ -54,3 +54,37 @@ class InventorySummary(BaseModel):
     total_quantity: float
     batch_count: int
     location_count: int
+
+
+# ── FIFO / Outward ──
+
+
+class FifoSuggestionItem(BaseModel):
+    batch_id: str
+    batch_number: str
+    location_id: str
+    location_name: str
+    available_quantity: float
+    suggested_quantity: float
+    expiration_date: Optional[str] = None
+
+
+class OutwardRequest(BaseModel):
+    item_id: str = Field(..., min_length=1)
+    quantity: float = Field(..., gt=0)
+    customer_entity_id: str = Field(..., min_length=1)
+    reference: Optional[str] = None
+    receipt_url: Optional[str] = None
+
+
+class OutwardTransaction(BaseModel):
+    transaction_id: str
+    batch_id: str
+    batch_number: str
+    quantity: float
+    created_at: Optional[str] = None
+
+
+class OutwardResponse(BaseModel):
+    transactions: list[OutwardTransaction]
+    message: str = "Dispatched successfully"
