@@ -12,7 +12,7 @@ In traditional software engineering, a team (Backend Developer, Frontend Develop
 
 ## ⏱️ The Benchmark: Breaking the 8-Hour Barrier
 
-While the unofficial hackathon record for shipping production-grade architecture with AI agents (like Claude Code) sits around **8 hours**, this personal benchmark shattered that ceiling.
+While the official hackathon benchmark for shipping production-grade architecture with AI agents (like Claude Code) sits around **8 hours**, this unofficial, personal benchmark shattered that ceiling.
 
 **This entire system was built from an empty folder in under 3 hours.**
 ### The New Workflow
